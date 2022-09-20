@@ -5,8 +5,11 @@ from time import sleep
 from re import M
 import deepl
 import sys
-# py = deepl.translate("EN", "FR","good is god")
-# print(py)
+
+INPUT_FILE = "file.txt"
+FROM_LANG = "FR"
+TO_LANG = "DE"
+OUTPUT_FILE = str(TO_LANG)+".json"
 
 def getFileContent(filePath:str) -> TextIOWrapper:
     
@@ -31,27 +34,34 @@ def openAndWrite(filename,content) :
     target_file = open(filename, 'a')
     target_file.writelines(content)
     target_file.close()
-    
-def main() :
-    # filaFileMatche = open(fileOutput, 'a')
-    translateFinal={}
-    source_lang = ["FR","EN"]
-    target_lang = ["EN","DE"]
-    fileContents = getFileContent("file.txt")
-    target_file = open(str(target_lang[1]).lower()+".json",'a')
-    
+
+
+def removeLine(contentLineToRemove, inpuFile):
+    "Function to auto update File by remove old entry"
+    src_file = inpuFile
+    f = open(src_file, "r")
+    contents = f.readlines()
+    f.close()
+
+    # remove the line item from list, by line number, starts from 0
+    contents.remove(contentLineToRemove)
+    f = open(src_file, "w")
+    contents = "".join(contents)
+    f.write(contents)
+    f.close()
+
+def makeTranslation() :
+    fileContents = getFileContent(INPUT_FILE)
     for word in fileElement(fileContents) :
-        enTranslate = translateWord("FR", "EN", word)
-        print(enTranslate)
-        sleep(50)
-        deTranslate = translateWord("EN", "DE", enTranslate)
-        print(deTranslate)
-        # translateFinal[enTranslate.strip()] = deTranslate.strip()
-        openAndWrite("de.txt", '"' + enTranslate +'"' + ":" + '"' + deTranslate + '"'+",")
+        translateOutput = translateWord(FROM_LANG, TO_LANG, word)
+        print(translateOutput)
+        openAndWrite(OUTPUT_FILE, '"' + word + '"' + ":" + '"' + translateOutput + '"'+",")
+        removeLine(word, INPUT_FILE)
         sleep(250)
+            
+def main() :
+    makeTranslation()
 
-    
-# fileResource = getFileContent("combolist.txt")
-
-# fileElement(fileResource)
-main()
+if __name__ == "__main__":
+        
+    main()
