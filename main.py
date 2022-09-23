@@ -6,9 +6,9 @@ from re import M
 import deepl
 import sys
 
-INPUT_FILE = "file.txt"
-FROM_LANG = "FR"
-TO_LANG = "DE"
+INPUT_FILE = ""
+FROM_LANG = ""
+TO_LANG = ""
 OUTPUT_FILE = str(TO_LANG)+".json"
 
 def getFileContent(filePath:str) -> TextIOWrapper:
@@ -32,7 +32,7 @@ def translateWord(from_lg:str, to_lg:str,word:str) -> str:
 
 def openAndWrite(filename,content) :
     target_file = open(filename, 'a')
-    target_file.writelines(content)
+    target_file.write(content)
     target_file.close()
 
 
@@ -55,12 +55,26 @@ def makeTranslation() :
     for word in fileElement(fileContents) :
         translateOutput = translateWord(FROM_LANG, TO_LANG, word)
         print(translateOutput)
-        openAndWrite(OUTPUT_FILE, '"' + word + '"' + ":" + '"' + translateOutput + '"'+",")
+        openAndWrite(OUTPUT_FILE, '"' + word.strip() + '"' + ":" + '"' + translateOutput.strip() + '"'+","+"\n")
         removeLine(word, INPUT_FILE)
         sleep(250)
-            
+        
+def repliqueTranslate() :
+    fileContents = getFileContent(INPUT_FILE)
+    for wordOrignal in fileElement(fileContents) :
+        word = wordOrignal.strip().replace(",","")
+        if word not in ["{","}"] :
+            words = word.replace('"',"").split(":")
+            translateOutput = translateWord(FROM_LANG, TO_LANG, words[0])
+            openAndWrite(OUTPUT_FILE, '"' + words[0] + '"' + ":" + '"' + translateOutput + '"'+","+"\n")
+            removeLine(wordOrignal, INPUT_FILE)
+            print(translateOutput)
+            # print(words[0])
+            # sleep(2)
+            sleep(200)
+                  
 def main() :
-    makeTranslation()
+    repliqueTranslate()
 
 if __name__ == "__main__":
         
